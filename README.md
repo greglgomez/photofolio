@@ -117,3 +117,12 @@ The JavaScript is modular and easy to extend. You can add:
 ## License
 
 This project is open source and available under the MIT License.
+
+### Photography Rights
+
+**IMPORTANT**: All photographs in this repository are the exclusive property of Gregorio Luiz Gomez and are protected by copyright law. The MIT License applies only to the software code, not to the images.
+
+- **Code**: MIT License (open source)
+- **Photography**: All rights reserved by Gregorio Luiz Gomez
+
+For licensing inquiries regarding the photographs, please contact the copyright holder.
