@@ -54,66 +54,48 @@ async function loadImages() {
 
 // Fallback method to load images
 async function loadFallbackImages() {
-    // Start with the specific images we know exist in the repository
+    console.log('Loading fallback images...');
+    
+    // Only try the specific images we know exist in the repository
     const knownImages = [
         'DSC00592.jpg', 'DSC00600.jpg', 'DSC00602.jpg', 
         'DSC00608.jpg', 'DSC00610.jpg', 'DSC00617.jpg'
     ];
     
-    // Common camera naming patterns as fallback
-    const commonPatterns = [
-        // Sony DSC pattern (most common)
-        'DSC00001.jpg', 'DSC00002.jpg', 'DSC00003.jpg', 'DSC00004.jpg', 'DSC00005.jpg',
-        'DSC00006.jpg', 'DSC00007.jpg', 'DSC00008.jpg', 'DSC00009.jpg', 'DSC00010.jpg',
-        'DSC001.jpg', 'DSC002.jpg', 'DSC003.jpg', 'DSC004.jpg', 'DSC005.jpg',
-        'DSC006.jpg', 'DSC007.jpg', 'DSC008.jpg', 'DSC009.jpg', 'DSC010.jpg',
-        // Canon IMG pattern
-        'IMG_0001.jpg', 'IMG_0002.jpg', 'IMG_0003.jpg', 'IMG_0004.jpg', 'IMG_0005.jpg',
-        'IMG_001.jpg', 'IMG_002.jpg', 'IMG_003.jpg', 'IMG_004.jpg', 'IMG_005.jpg',
-        // Generic patterns
-        'photo1.jpg', 'photo2.jpg', 'photo3.jpg', 'photo4.jpg', 'photo5.jpg',
-        'image1.jpg', 'image2.jpg', 'image3.jpg', 'image4.jpg', 'image5.jpg',
-        'img1.jpg', 'img2.jpg', 'img3.jpg', 'img4.jpg', 'img5.jpg',
-        // Simple numbering
-        '1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg',
-        '01.jpg', '02.jpg', '03.jpg', '04.jpg', '05.jpg'
-    ];
-    
-    // Combine known images with common patterns
-    const allPatterns = [...knownImages, ...commonPatterns];
-    
     const foundImages = [];
-    let checkedCount = 0;
-    const maxChecks = 30; // Limit the number of attempts
     
-    // Try to load images and see which ones exist
-    for (const imageName of allPatterns) {
-        if (checkedCount >= maxChecks) break;
-        checkedCount++;
+    // Try to load only the known images
+    for (const imageName of knownImages) {
+        const imagePath = getImagePath(imageName);
+        console.log(`Trying to load: ${imagePath}`);
         
         try {
             const img = new Image();
-            img.src = getImagePath(imageName);
+            img.src = imagePath;
             
             await new Promise((resolve, reject) => {
                 img.onload = () => {
+                    console.log(`Successfully loaded: ${imageName}`);
                     foundImages.push(imageName);
                     resolve();
                 };
                 img.onerror = () => {
+                    console.log(`Failed to load: ${imageName}`);
                     reject();
                 };
                 // Shorter timeout for faster loading
-                setTimeout(() => reject(), 500);
+                setTimeout(() => {
+                    console.log(`Timeout loading: ${imageName}`);
+                    reject();
+                }, 1000);
             });
             
-            // Stop after finding 15 images to avoid too many requests
-            if (foundImages.length >= 15) break;
-            
         } catch (error) {
-            // Image doesn't exist, continue to next
+            console.log(`Error loading: ${imageName}`, error);
         }
     }
+    
+    console.log(`Found ${foundImages.length} images:`, foundImages);
     
     if (foundImages.length > 0) {
         foundImages.forEach((imageName, index) => {
