@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photography Portfolio - Demo</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Demo-specific styles for placeholder images */
+        .demo-placeholder {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 500;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .demo-placeholder::before {
+            content: "📸";
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">Photography Portfolio</h1>
+            <p class="subtitle">Capturing moments, one frame at a time</p>
+        </header>
+        
+        <main class="gallery" id="gallery">
+            <!-- Demo images -->
+            <div class="gallery-item">
+                <div class="demo-placeholder">
+                    <div>
+                        <div>Demo Image 1</div>
+                        <small>Click to view fullscreen</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="gallery-item">
+                <div class="demo-placeholder">
+                    <div>
+                        <div>Demo Image 2</div>
+                        <small>Hover for effects</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="gallery-item">
+                <div class="demo-placeholder">
+                    <div>
+                        <div>Demo Image 3</div>
+                        <small>Smooth animations</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="gallery-item">
+                <div class="demo-placeholder">
+                    <div>
+                        <div>Demo Image 4</div>
+                        <small>Responsive design</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="gallery-item">
+                <div class="demo-placeholder">
+                    <div>
+                        <div>Demo Image 5</div>
+                        <small>Mobile friendly</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="gallery-item">
+                <div class="demo-placeholder">
+                    <div>
+                        <div>Demo Image 6</div>
+                        <small>Keyboard navigation</small>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <div style="text-align: center; padding: 40px 20px; color: #666;">
+            <h3>How to Use Your Portfolio</h3>
+            <p>1. Add your photography images to the <code>images/</code> folder</p>
+            <p>2. Run <code>./start.sh</code> or <code>python3 server.py</code></p>
+            <p>3. Open <a href="http://localhost:8000">http://localhost:8000</a> in your browser</p>
+            <p>4. Your images will automatically appear in the gallery!</p>
+        </div>
+    </div>
+
+    <!-- Fullscreen Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <div class="demo-placeholder" style="width: 80%; height: 60%; font-size: 2rem;">
+                <div>
+                    <div>Fullscreen Demo</div>
+                    <small>Use arrow keys or swipe to navigate</small>
+                </div>
+            </div>
+            <div class="modal-nav">
+                <button class="nav-btn prev" id="prevBtn">&lt;</button>
+                <button class="nav-btn next" id="nextBtn">&gt;</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple demo functionality
+        const galleryItems = document.querySelectorAll('.gallery-item');
+        const modal = document.getElementById('modal');
+        const closeModal = document.getElementById('closeModal');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        let currentIndex = 0;
+        
+        galleryItems.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                currentIndex = index;
+                openModal();
+            });
+        });
+        
+        function openModal() {
+            modal.style.display = 'block';
+            setTimeout(() => modal.classList.add('show'), 10);
+            document.body.style.overflow = 'hidden';
+            updateNavButtons();
+        }
+        
+        function closeModalHandler() {
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+        
+        function updateNavButtons() {
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === galleryItems.length - 1;
+        }
+        
+        function prevImage() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateNavButtons();
+            }
+        }
+        
+        function nextImage() {
+            if (currentIndex < galleryItems.length - 1) {
+                currentIndex++;
+                updateNavButtons();
+            }
+        }
+        
+        closeModal.addEventListener('click', closeModalHandler);
+        prevBtn.addEventListener('click', prevImage);
+        nextBtn.addEventListener('click', nextImage);
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModalHandler();
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            if (modal.style.display === 'block') {
+                switch(e.key) {
+                    case 'Escape': closeModalHandler(); break;
+                    case 'ArrowLeft': prevImage(); break;
+                    case 'ArrowRight': nextImage(); break;
+                }
+            }
+        });
+        
+        // Add staggered animation delay
+        galleryItems.forEach((item, index) => {
+            item.style.animationDelay = `${0.1 * index}s`;
+        });
+    </script>
+</body>
+</html>
