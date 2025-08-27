@@ -47,32 +47,43 @@ async function loadImages() {
 
 // Fallback method to load images
 async function loadFallbackImages() {
-    // Common image extensions and naming patterns
-    const extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-    const prefixes = ['', 'photo', 'image', 'img', 'DSC', 'IMG_', 'P'];
-    const numbers = Array.from({length: 50}, (_, i) => i + 1);
+    // Start with the specific images we know exist in the repository
+    const knownImages = [
+        'DSC00592.jpg', 'DSC00600.jpg', 'DSC00602.jpg', 
+        'DSC00608.jpg', 'DSC00610.jpg', 'DSC00617.jpg'
+    ];
     
-    const possibleImageNames = [];
+    // Common camera naming patterns as fallback
+    const commonPatterns = [
+        // Sony DSC pattern (most common)
+        'DSC00001.jpg', 'DSC00002.jpg', 'DSC00003.jpg', 'DSC00004.jpg', 'DSC00005.jpg',
+        'DSC00006.jpg', 'DSC00007.jpg', 'DSC00008.jpg', 'DSC00009.jpg', 'DSC00010.jpg',
+        'DSC001.jpg', 'DSC002.jpg', 'DSC003.jpg', 'DSC004.jpg', 'DSC005.jpg',
+        'DSC006.jpg', 'DSC007.jpg', 'DSC008.jpg', 'DSC009.jpg', 'DSC010.jpg',
+        // Canon IMG pattern
+        'IMG_0001.jpg', 'IMG_0002.jpg', 'IMG_0003.jpg', 'IMG_0004.jpg', 'IMG_0005.jpg',
+        'IMG_001.jpg', 'IMG_002.jpg', 'IMG_003.jpg', 'IMG_004.jpg', 'IMG_005.jpg',
+        // Generic patterns
+        'photo1.jpg', 'photo2.jpg', 'photo3.jpg', 'photo4.jpg', 'photo5.jpg',
+        'image1.jpg', 'image2.jpg', 'image3.jpg', 'image4.jpg', 'image5.jpg',
+        'img1.jpg', 'img2.jpg', 'img3.jpg', 'img4.jpg', 'img5.jpg',
+        // Simple numbering
+        '1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg',
+        '01.jpg', '02.jpg', '03.jpg', '04.jpg', '05.jpg'
+    ];
     
-    // Generate possible image names
-    for (const prefix of prefixes) {
-        for (const num of numbers) {
-            for (const ext of extensions) {
-                if (prefix) {
-                    possibleImageNames.push(`${prefix}${num.toString().padStart(2, '0')}.${ext}`);
-                    possibleImageNames.push(`${prefix}${num}.${ext}`);
-                } else {
-                    possibleImageNames.push(`${num}.${ext}`);
-                    possibleImageNames.push(`${num.toString().padStart(2, '0')}.${ext}`);
-                }
-            }
-        }
-    }
+    // Combine known images with common patterns
+    const allPatterns = [...knownImages, ...commonPatterns];
     
     const foundImages = [];
+    let checkedCount = 0;
+    const maxChecks = 30; // Limit the number of attempts
     
     // Try to load images and see which ones exist
-    for (const imageName of possibleImageNames) {
+    for (const imageName of allPatterns) {
+        if (checkedCount >= maxChecks) break;
+        checkedCount++;
+        
         try {
             const img = new Image();
             img.src = `images/${imageName}`;
@@ -85,12 +96,12 @@ async function loadFallbackImages() {
                 img.onerror = () => {
                     reject();
                 };
-                // Timeout after 1 second for faster loading
-                setTimeout(() => reject(), 1000);
+                // Shorter timeout for faster loading
+                setTimeout(() => reject(), 500);
             });
             
-            // Stop after finding 20 images to avoid too many requests
-            if (foundImages.length >= 20) break;
+            // Stop after finding 15 images to avoid too many requests
+            if (foundImages.length >= 15) break;
             
         } catch (error) {
             // Image doesn't exist, continue to next
@@ -117,10 +128,11 @@ function createGalleryItem(imageName, index) {
     img.alt = `Photography ${index + 1}`;
     img.loading = 'lazy';
     
-    // Add error handling for missing images
+    // Add error handling for missing images (silent)
     img.onerror = function() {
-        this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjI4MCIgdmlld0JveD0iMCAwIDM1MCAyODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzNTAiIGhlaWdodD0iMjgwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0xNzUgMTQwQzE3NSAxNDAgMTY1IDEzMCAxNTUgMTMwQzE0NSAxMzAgMTM1IDE0MCAxMzUgMTUwQzEzNSAxNjAgMTQ1IDE3MCAxNTUgMTcwQzE2NSAxNzAgMTc1IDE2MCAxNzUgMTUwWiIgZmlsbD0iI0Q5RDlEOSIvPgo8cGF0aCBkPSJNMTc1IDE0MEMxNzUgMTQwIDE2NSAxMzAgMTU1IDEzMEMxNDUgMTMwIDEzNSAxNDAgMTM1IDE1MEMxMzUgMTYwIDE0NSAxNzAgMTU1IDE3MEMxNjUgMTcwIDE3NSAxNjAgMTc1IDE1MFoiIGZpbGw9IiNENkQ2RDYiLz4KPHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMwIDMwQzMwIDMwIDI1IDI1IDIwIDI1QzE1IDI1IDEwIDMwIDEwIDM1QzEwIDQwIDE1IDQ1IDIwIDQ1QzI1IDQ1IDMwIDQwIDMwIDM1WiIgZmlsbD0iI0M5QzlDOSIvPgo8L3N2Zz4KPC9zdmc+';
-        this.alt = 'Image not found';
+        // Silently handle missing images without console spam
+        this.style.display = 'none';
+        this.parentElement.style.display = 'none';
     };
     
     // Detect aspect ratio and apply appropriate class for tiling
