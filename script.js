@@ -2,6 +2,13 @@
 let currentImageIndex = 0;
 let images = [];
 
+// Helper function to get correct image path for both local and GitHub Pages
+function getImagePath(imageName) {
+    // Check if we're on GitHub Pages (has a base path)
+    const basePath = window.location.pathname.includes('/photofolio/') ? '/photofolio' : '';
+    return `${basePath}/images/${imageName}`;
+}
+
 // DOM elements
 const gallery = document.getElementById('gallery');
 const modal = document.getElementById('modal');
@@ -86,7 +93,7 @@ async function loadFallbackImages() {
         
         try {
             const img = new Image();
-            img.src = `images/${imageName}`;
+            img.src = getImagePath(imageName);
             
             await new Promise((resolve, reject) => {
                 img.onload = () => {
@@ -124,7 +131,7 @@ function createGalleryItem(imageName, index) {
     item.setAttribute('data-index', index);
     
     const img = document.createElement('img');
-    img.src = `images/${imageName}`;
+    img.src = getImagePath(imageName);
     img.alt = `Photography ${index + 1}`;
     img.loading = 'lazy';
     
@@ -180,7 +187,7 @@ function openModal(index) {
     currentImageIndex = index;
     const imageName = images[index];
     
-    modalImage.src = `images/${imageName}`;
+    modalImage.src = getImagePath(imageName);
     modalImage.alt = `Photography ${index + 1}`;
     
     modal.style.display = 'block';
@@ -222,7 +229,7 @@ function nextImage() {
 // Update modal image
 function updateModalImage() {
     const imageName = images[currentImageIndex];
-    modalImage.src = `images/${imageName}`;
+    modalImage.src = getImagePath(imageName);
     modalImage.alt = `Photography ${currentImageIndex + 1}`;
     updateNavigationButtons();
 }
